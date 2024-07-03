@@ -20,34 +20,34 @@ func TestRenderVariable(t *testing.T) {
 
 	testCases := []TestCase{
 		{
-			template:       "<h1>{username}{ username }{    username   }</h1>",
-			expectedOutput: "<h1>" + username + username + username + "</h1>",
+			Input:       "<h1>{username}{ username }{    username   }</h1>",
+			ExpectedOutput: "<h1>" + username + username + username + "</h1>",
 		},
 		{
-			template:       "<h1 style='color: { color };'>{  username }</h1>",
-			expectedOutput: "<h1 style='color: " + color + ";'>" + username + "</h1>",
+			Input:       "<h1 style='color: { color };'>{  username }</h1>",
+			ExpectedOutput: "<h1 style='color: " + color + ";'>" + username + "</h1>",
 		},
 		{
-			template:       "{ color }{  username }",
-			expectedOutput: color + username,
+			Input:       "{ color }{  username }",
+			ExpectedOutput: color + username,
 		},
 		{
-			template:       "{ number } {  array } { boolean }",
-			expectedOutput: "2 [\"item1\",\"item2\"] true",
+			Input:       "{ number } {  array } { boolean }",
+			ExpectedOutput: "2 [\"item1\",\"item2\"] true",
 		},
 	}
 
 	for _, test := range testCases {
-		output, err := templateEngine.RenderTemplate(test.template, variables)
+		output, err := templateEngine.RenderTemplate(test.Input.(string), variables)
 
 		if err != nil {
 			t.Error(err.Error())
 		}
 
-		if output != test.expectedOutput {
+		if output != test.ExpectedOutput {
 			errorMsg := fmt.Sprintf(
 				"Expected output and final output are not same\nExpected output: \n%v \nFinal output: \n%v",
-				test.expectedOutput,
+				test.ExpectedOutput,
 				output,
 			)
 			t.Error(errorMsg)
