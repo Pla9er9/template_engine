@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"os"
 	"strings"
 )
@@ -45,14 +44,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 			value := variables[variableName]
 			
 			if value != nil {
-				var strValue string
-				switch value.(type) {
-				case string:
-					strValue = value.(string)
-				default:
-					b, _ := json.Marshal(value)
-					strValue = string(b)
-				}
+				strValue := Stringify(value)
 				temlpateCopy = temlpateCopy[0:currentIndex + 1] + strValue + template[i + 1:]
 				currentIndex += len(strValue)
 			}
