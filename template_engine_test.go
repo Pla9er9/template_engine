@@ -8,27 +8,32 @@ import (
 var templateEngine = getTemplateEngine()
 
 func TestRenderVariable(t *testing.T) {
+	username := "Alex"
+	color := "blue"
 	variables := map[string]any{
-		"username": "Alex",
-		"color":    "blue",
+		"username": username,
+		"color":    color,
+		"number":   2,
+		"array":    []string{"item1", "item2"},
+		"boolean":  true,
 	}
 
 	testCases := []TestCase{
 		{
-			template:       "<h1>{ username }</h1>",
-			expectedOutput: "<h1>Alex</h1>",
-		},
-		{
-			template:       "<h1>{    username   }</h1>",
-			expectedOutput: "<h1>Alex</h1>",
+			template:       "<h1>{username}{ username }{    username   }</h1>",
+			expectedOutput: "<h1>" + username + username + username + "</h1>",
 		},
 		{
 			template:       "<h1 style='color: { color };'>{  username }</h1>",
-			expectedOutput: "<h1 style='color: blue;'>Alex</h1>",
+			expectedOutput: "<h1 style='color: " + color + ";'>" + username + "</h1>",
 		},
 		{
 			template:       "{ color }{  username }",
-			expectedOutput: "blueAlex",
+			expectedOutput: color + username,
+		},
+		{
+			template:       "{ number } {  array } { boolean }",
+			expectedOutput: "2 [\"item1\",\"item2\"] true",
 		},
 	}
 
