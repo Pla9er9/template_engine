@@ -20,37 +20,75 @@ func TestRenderVariable(t *testing.T) {
 
 	testCases := []TestCase{
 		{
-			Input:       "<h1>{username}{ username }{    username   }</h1>",
+			Input:          "<h1>{username}{ username }{    username   }</h1>",
 			ExpectedOutput: "<h1>" + username + username + username + "</h1>",
 		},
 		{
-			Input:       "<h1 style='color: { color };'>{  username }</h1>",
+			Input:          "<h1 style='color: { color };'>{  username }</h1>",
 			ExpectedOutput: "<h1 style='color: " + color + ";'>" + username + "</h1>",
 		},
 		{
-			Input:       "{ color }{  username }",
+			Input:          "{ color }{  username }",
 			ExpectedOutput: color + username,
 		},
 		{
-			Input:       "{ number } {  array } { boolean }",
+			Input:          "{ number } {  array } { boolean }",
 			ExpectedOutput: "2 [\"item1\",\"item2\"] true",
+		},
+		{
+			Input:          "{ empty }",
+			ExpectedOutput: "{ empty }",
 		},
 	}
 
-	for _, test := range testCases {
-		output, err := templateEngine.RenderTemplate(test.Input.(string), variables)
+	testRenderTestCases(t, testCases, variables)
+}
 
-		if err != nil {
-			t.Error(err.Error())
-		}
+func TestRenderIfStatment(t *testing.T) {
+	variables := map[string]any{
+		"isAuthorized": true,
+		"isAdmin":      false,
+		"moreInfo":     true,
+	}
+
+	testCases := []TestCase{
+		{
+			Input:          "{@if isAuthorized}<h1>You are authorized</h1>{/if}",
+			ExpectedOutput: "<h1>You are authorized</h1>",
+		},
+		{
+			Input:          "{@if isAdmin}<h1>You are admin</h1>{/if}",
+			ExpectedOutput: "",
+		},
+		{
+			Input:          "{@if isAuthorized}<h1>You are authorized</h1>{@if moreInfo}<p>More Info</p>{/if}{@if moreInfo}<h1>Jestem adminem</h1>{@if isAdmin}<p>More Info</p>{/if}{/if}{/if}",
+			ExpectedOutput: "<h1>You are authorized</h1><p>More Info</p><h1>Jestem adminem</h1>",
+		},
+		{
+			Input:          "{@if isAuthorized}<h1>You are authorized</h1>{@if isAdmin}<p>More Info</p>{/if}{/if}",
+			ExpectedOutput: "<h1>You are authorized</h1>",
+		},
+	}
+
+	testRenderTestCases(t, testCases, variables)
+}
+
+func testRenderTestCases(t *testing.T, testCases []TestCase, variables map[string]any) {
+	for _, test := range testCases {
+		input := test.Input.(string)
+		output := templateEngine.RenderTemplate(input, variables)
 
 		if output != test.ExpectedOutput {
-			errorMsg := fmt.Sprintf(
-				"Expected output and final output are not same\nExpected output: \n%v \nFinal output: \n%v",
-				test.ExpectedOutput,
-				output,
-			)
-			t.Error(errorMsg)
+			errorMsg := getRenderErrorMsg(test.ExpectedOutput.(string), output)
+ 			t.Error(errorMsg)
 		}
 	}
+}
+
+func getRenderErrorMsg(expectedOutput string, output string) string {
+	return fmt.Sprintf(
+		"Expected output and final output are not same\nExpected output: \n%v \nFinal output: \n%v",
+		expectedOutput,
+		output,
+	)
 }
