@@ -73,6 +73,30 @@ func TestRenderIfStatment(t *testing.T) {
 	testRenderTestCases(t, testCases, variables)
 }
 
+func TestRenderForeachStatment(t *testing.T) {
+	variables := map[string]any{
+		"numbers": []int{1, 2, 3},
+	}
+
+	testCases := []TestCase{
+		{
+			Input:          "{@foreach numbers as num}{num}{/foreach}",
+			ExpectedOutput: "123",
+		},
+		{
+			Input:          "{@foreach numbers as num}lol{/foreach}",
+			ExpectedOutput: "lollollol",
+		},
+		{
+			Input:          "{@foreach numbers as num}{@foreach numbers as num}{num}{/foreach}{/foreach}",
+			ExpectedOutput: "123123123",
+		},
+	}
+
+	testRenderTestCases(t, testCases, variables)
+}
+
+
 func testRenderTestCases(t *testing.T, testCases []TestCase, variables map[string]any) {
 	for _, test := range testCases {
 		input := test.Input.(string)
