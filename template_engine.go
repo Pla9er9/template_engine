@@ -73,13 +73,35 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 
 				} else if variableName == "/foreach" {
 					forEachStatmentsOpened -= 1
+					if forEachStatmentsOpened != 0 {
+						contentInStatment += "}"
+						continue
+					}
+
+					variableName := currentStatmentState.Info["variableName"].(string)
+					iterationVariableName := currentStatmentState.Info["iterationVariableName"].(string)
+					array := variables[variableName].([]int)
+
+					for _, v := range array {
+						variables[iterationVariableName] = v
+						result += t.RenderTemplate(contentInStatment, variables)
+					}
+
+					delete(variables, iterationVariableName)
+					contentInStatment = ""
+					currentStatmentState = StatmentState{}
+
 				} else {
-					value := variables[variableName]
-					if value != nil {
-						strValue := Stringify(value)
-						result += strValue
+					if ifStatmentsOpened > 0 || forEachStatmentsOpened > 0 {
+						contentInStatment += "}"
 					} else {
-						result += "{" + claimsInBracketClone + "}"
+						value := variables[variableName]
+						if value != nil {
+							strValue := Stringify(value)
+							result += strValue
+						} else {
+							result += "{" + claimsInBracketClone + "}"
+						}
 					}
 				}
 
