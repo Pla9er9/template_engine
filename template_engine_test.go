@@ -39,6 +39,10 @@ func TestRenderVariable(t *testing.T) {
 			Input:          "{ empty }",
 			ExpectedOutput: "{ empty }",
 		},
+		{
+			Input:          "{ ello",
+			ExpectedOutput: "{ ello",
+		},
 	}
 
 	testRenderTestCases(t, testCases, variables)
@@ -49,6 +53,7 @@ func TestRenderIfStatment(t *testing.T) {
 		"isAuthorized": true,
 		"isAdmin":      false,
 		"moreInfo":     true,
+		"message": "Hello abc",
 	}
 
 	testCases := []TestCase{
@@ -67,6 +72,14 @@ func TestRenderIfStatment(t *testing.T) {
 		{
 			Input:          "{@if isAuthorized}<h1>You are authorized</h1>{@if isAdmin}<p>More Info</p>{/if}{/if}",
 			ExpectedOutput: "<h1>You are authorized</h1>",
+		},
+		{
+			Input:          "{@if isAuthorized}{message}{/if}",
+			ExpectedOutput: "Hello abc",
+		},
+		{
+			Input:          "{@if none}{message}{/if}",
+			ExpectedOutput: "{@if none}{message}{/if}",
 		},
 	}
 
@@ -90,6 +103,10 @@ func TestRenderForeachStatment(t *testing.T) {
 		{
 			Input:          "{@foreach numbers as num}{@foreach numbers as num}{num}{/foreach}{/foreach}",
 			ExpectedOutput: "123123123",
+		},
+		{
+			Input:          "{num{num}{/foreach",
+			ExpectedOutput: "{num{num}{/foreach",
 		},
 	}
 
