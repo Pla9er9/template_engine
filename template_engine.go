@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"reflect"
 	"strings"
 )
 
@@ -29,17 +31,21 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 		isInBracket            = false
 		ifStatmentsOpened      = 0
 		forEachStatmentsOpened = 0
-		currentStatmentState   = StatmentState{}
-		claimsInBracket        = ""
-		contentInStatment      = ""
-		result                 = ""
+		currentStatmentState   = StatmentState{
+			Info: make(map[string]any),
+		}
+		claimsInBracket   = ""
+		contentInStatment = ""
+		result            = ""
 	)
 
 	for i := 0; i < len(template); i++ {
 		switch template[i] {
 		case '{':
+			if isInBracket {
+				result += "{" + claimsInBracket
+			}
 			isInBracket = true
-			result += claimsInBracket
 			claimsInBracket = ""
 			if ifStatmentsOpened > 0 || forEachStatmentsOpened > 0 {
 				contentInStatment += "{"
@@ -61,15 +67,28 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 						continue
 					}
 
-					shouldRender := currentStatmentState.Info["shouldRender"].(bool)
-					if !shouldRender {
+					shouldRender := currentStatmentState.Info["shouldRender"]
+
+					if shouldRender == nil {
+						ifStatment := currentStatmentState.Info["statment"].(string)
+						result += "{" + ifStatment + "}" + contentInStatment + "}"
 						continue
 					}
 
+					if !shouldRender.(bool) {
+						continue
+					}
+
+					rep, ok := strings.CutSuffix(contentInStatment, "{/if")
+					if ok {
+						contentInStatment = rep
+					}
 					renderedContent := t.RenderTemplate(contentInStatment, variables)
 					result += renderedContent
 					contentInStatment = ""
-					currentStatmentState = StatmentState{}
+					currentStatmentState = StatmentState{
+						Info: make(map[string]any),
+					}
 
 				} else if variableName == "/foreach" {
 					forEachStatmentsOpened -= 1
@@ -80,16 +99,30 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 
 					variableName := currentStatmentState.Info["variableName"].(string)
 					iterationVariableName := currentStatmentState.Info["iterationVariableName"].(string)
-					array := variables[variableName].([]int)
+					array := variables[variableName]
 
-					for _, v := range array {
+					if array == nil {
+						continue
+					}
+
+					slice, err := convertToSlice(array)
+
+					if err != nil {
+						fmt.Println(err.Error())
+						continue
+					}
+
+					for _, v := range slice {
 						variables[iterationVariableName] = v
+						contentInStatment, _ := strings.CutSuffix(contentInStatment, "{/foreach")
 						result += t.RenderTemplate(contentInStatment, variables)
 					}
 
 					delete(variables, iterationVariableName)
 					contentInStatment = ""
-					currentStatmentState = StatmentState{}
+					currentStatmentState = StatmentState{
+						Info: make(map[string]any),
+					}
 
 				} else {
 					if ifStatmentsOpened > 0 || forEachStatmentsOpened > 0 {
@@ -119,15 +152,34 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 
 				if statment == IfStatment {
 					ifStatmentsOpened++
-					if ifStatmentsOpened == 1 {
-						value := variables[claims[1]]
-						currentStatmentState = GetNewIfStatmentState(value.(bool))
+					if ifStatmentsOpened != 1 {
+						continue
 					}
+
+					value := variables[claims[1]]
+					valueType := reflect.TypeOf(value)
+
+					if value == nil || valueType.String() != "bool" {
+						currentStatmentState.Info["statment"] = claimsInBracketClone
+						continue
+					}
+					currentStatmentState = GetNewIfStatmentState(value.(bool))
+
 				} else if statment == ForeachStatment {
 					forEachStatmentsOpened++
-					if forEachStatmentsOpened == 1 {
-						currentStatmentState = GetNewForeachStatmentState(claims[1], claims[3])
+					if forEachStatmentsOpened != 1 {
+						continue
 					}
+
+					value := variables[claims[1]]
+					valueType := reflect.TypeOf(value)
+
+					if value == nil || !strings.HasPrefix(valueType.String(), "[]") {
+						currentStatmentState.Info["statment"] = claimsInBracketClone
+						continue
+					}
+
+					currentStatmentState = GetNewForeachStatmentState(claims[1], claims[3])
 				}
 
 			}
@@ -152,6 +204,10 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 		}
 	}
 
+	if isInBracket {
+		result += "{" + claimsInBracket
+	}
+
 	return result
 }
 
@@ -162,4 +218,23 @@ func detectStatment(claims []string) int {
 		return ForeachStatment
 	}
 	return -1
+}
+
+func convertToSlice(data any) ([]any, error) {
+	value := reflect.ValueOf(data)
+	kind := value.Kind()
+
+	if kind == reflect.Slice {
+		sliceValue := value
+		newSlice := make([]any, 0, sliceValue.Len())
+
+		for i := 0; i < sliceValue.Len(); i++ {
+			elementValue := sliceValue.Index(i)
+			newSlice = append(newSlice, elementValue.Interface())
+		}
+
+		return newSlice, nil
+	} else {
+		return nil, fmt.Errorf("passed data is not slice")
+	}
 }
