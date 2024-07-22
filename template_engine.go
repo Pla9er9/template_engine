@@ -101,7 +101,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 						continue
 					}
 
-					slice, err := convertToSlice(array)
+					slice, err := convertAnyToSlice(array)
 
 					if err != nil {
 						fmt.Println(err.Error())
@@ -214,21 +214,3 @@ func detectStatment(claims []string) int {
 	return -1
 }
 
-func convertToSlice(data any) ([]any, error) {
-	value := reflect.ValueOf(data)
-	kind := value.Kind()
-
-	if kind == reflect.Slice {
-		sliceValue := value
-		newSlice := make([]any, 0, sliceValue.Len())
-
-		for i := 0; i < sliceValue.Len(); i++ {
-			elementValue := sliceValue.Index(i)
-			newSlice = append(newSlice, elementValue.Interface())
-		}
-
-		return newSlice, nil
-	} else {
-		return nil, fmt.Errorf("passed data is not slice")
-	}
-}
