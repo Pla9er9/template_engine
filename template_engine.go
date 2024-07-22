@@ -157,7 +157,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 						currentStatmentState.Info["statment"] = claimsInBracketClone
 						continue
 					}
-					currentStatmentState = GetNewIfStatmentState(value.(bool))
+					currentStatmentState = GetNewIfStatment(value.(bool))
 
 				} else if statment == ForeachStatment {
 					forEachStatmentsOpened++
@@ -173,7 +173,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 						continue
 					}
 
-					currentStatmentState = GetNewForeachStatmentState(claims[1], claims[3])
+					currentStatmentState = GetNewForeachStatment(claims[1], claims[3])
 				}
 
 			}

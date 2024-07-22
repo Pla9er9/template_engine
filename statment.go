@@ -6,20 +6,20 @@ const (
 	ForeachStatment = 2
 )
 
-type StatmentState struct {
+type Statment struct {
 	Statment int
 	Info     map[string]any
 }
 
-func GetNewEmptyStatment() StatmentState {
-	return StatmentState{
+func GetNewEmptyStatment() Statment {
+	return Statment{
 		Statment: NoStatment,
 		Info: make(map[string]any),
 	}
 }
 
-func GetNewIfStatmentState(shouldRender bool) StatmentState {
-	return StatmentState{
+func GetNewIfStatment(shouldRender bool) Statment {
+	return Statment{
 		Statment: IfStatment,
 		Info: map[string]any{
 			"shouldRender": shouldRender,
@@ -27,8 +27,8 @@ func GetNewIfStatmentState(shouldRender bool) StatmentState {
 	}
 }
 
-func GetNewForeachStatmentState(variableName, iterationVariableName string) StatmentState {
-	return  StatmentState{
+func GetNewForeachStatment(variableName, iterationVariableName string) Statment {
+	return  Statment{
 		Statment: ForeachStatment,
 		Info: map[string]any{
 			"variableName":          variableName,
