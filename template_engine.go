@@ -31,9 +31,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 		isInBracket            = false
 		ifStatmentsOpened      = 0
 		forEachStatmentsOpened = 0
-		currentStatmentState   = StatmentState{
-			Info: make(map[string]any),
-		}
+		currentStatmentState   = GetNewEmptyStatment()
 		claimsInBracket   = ""
 		contentInStatment = ""
 		result            = ""
@@ -86,9 +84,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 					renderedContent := t.RenderTemplate(contentInStatment, variables)
 					result += renderedContent
 					contentInStatment = ""
-					currentStatmentState = StatmentState{
-						Info: make(map[string]any),
-					}
+					currentStatmentState = GetNewEmptyStatment()
 
 				} else if variableName == "/foreach" {
 					forEachStatmentsOpened -= 1
@@ -120,9 +116,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 
 					delete(variables, iterationVariableName)
 					contentInStatment = ""
-					currentStatmentState = StatmentState{
-						Info: make(map[string]any),
-					}
+					currentStatmentState = GetNewEmptyStatment()
 
 				} else {
 					if ifStatmentsOpened > 0 || forEachStatmentsOpened > 0 {

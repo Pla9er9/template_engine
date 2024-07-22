@@ -11,6 +11,13 @@ type StatmentState struct {
 	Info     map[string]any
 }
 
+func GetNewEmptyStatment() StatmentState {
+	return StatmentState{
+		Statment: NoStatment,
+		Info: make(map[string]any),
+	}
+}
+
 func GetNewIfStatmentState(shouldRender bool) StatmentState {
 	return StatmentState{
 		Statment: IfStatment,
