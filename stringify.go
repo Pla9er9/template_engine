@@ -4,7 +4,7 @@ import "encoding/json"
 
 func Stringify(v any) string {
 	if v == nil {
-		return ""
+		return "nil"
 	}
 	switch v.(type) {
 	case string:
