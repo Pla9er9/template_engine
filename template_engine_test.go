@@ -5,31 +5,31 @@ import (
 	"testing"
 )
 
-var templateEngine = getTemplateEngine()
+var templateEngine = GetTemplateEngine()
 
 func TestRenderVariable(t *testing.T) {
-	username := "Alex"
-	color := "blue"
-	variables := map[string]any{
-		"username": username,
-		"color":    color,
-		"number":   2,
-		"array":    []string{"item1", "item2"},
-		"boolean":  true,
-	}
+	var (
+		variables = map[string]any{
+			"username": "Alex",
+			"color":    "blue",
+			"number":   2,
+			"array":    []string{"item1", "item2"},
+			"boolean":  true,
+		}
+	)
 
 	testCases := []TestCase{
 		{
 			Input:          "<h1>{username}{ username }{    username   }</h1>",
-			ExpectedOutput: "<h1>" + username + username + username + "</h1>",
+			ExpectedOutput: "<h1>AlexAlexAlex</h1>",
 		},
 		{
 			Input:          "<h1 style='color: { color };'>{  username }</h1>",
-			ExpectedOutput: "<h1 style='color: " + color + ";'>" + username + "</h1>",
+			ExpectedOutput: "<h1 style='color: blue;'>Alex</h1>",
 		},
 		{
 			Input:          "{ color }{  username }",
-			ExpectedOutput: color + username,
+			ExpectedOutput: "blueAlex",
 		},
 		{
 			Input:          "{ number } {  array } { boolean }",
@@ -53,7 +53,7 @@ func TestRenderIfStatment(t *testing.T) {
 		"isAuthorized": true,
 		"isAdmin":      false,
 		"moreInfo":     true,
-		"message": "Hello abc",
+		"message":      "Hello abc",
 	}
 
 	testCases := []TestCase{
@@ -113,7 +113,6 @@ func TestRenderForeachStatment(t *testing.T) {
 	testRenderTestCases(t, testCases, variables)
 }
 
-
 func testRenderTestCases(t *testing.T, testCases []TestCase, variables map[string]any) {
 	for _, test := range testCases {
 		input := test.Input.(string)
@@ -121,7 +120,7 @@ func testRenderTestCases(t *testing.T, testCases []TestCase, variables map[strin
 
 		if output != test.ExpectedOutput {
 			errorMsg := getRenderErrorMsg(test.ExpectedOutput.(string), output)
- 			t.Error(errorMsg)
+			t.Error(errorMsg)
 		}
 	}
 }

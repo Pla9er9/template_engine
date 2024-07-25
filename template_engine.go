@@ -1,15 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"reflect"
 	"strings"
 )
 
 type TemplateEngine struct{}
 
-func getTemplateEngine() *TemplateEngine {
+func GetTemplateEngine() *TemplateEngine {
 	return &TemplateEngine{}
 }
 
@@ -28,10 +26,8 @@ func readFile(filename string) ([]byte, error) {
 
 func (t *TemplateEngine) RenderTemplate(template string, variables map[string]any) string {
 	var (
-		isInBracket            = false
-		ifStatmentsOpened      = 0
-		forEachStatmentsOpened = 0
-		currentStatmentState   = GetNewEmptyStatment()
+		statmentManager   = GetMainStatmentManager(&variables)
+		isInBracket       = false
 		claimsInBracket   = ""
 		contentInStatment = ""
 		result            = ""
@@ -43,146 +39,75 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 			if isInBracket {
 				result += "{" + claimsInBracket
 			}
+
 			isInBracket = true
 			claimsInBracket = ""
-			if ifStatmentsOpened > 0 || forEachStatmentsOpened > 0 {
+
+			if statmentManager.statmentsOpened > 0 {
 				contentInStatment += "{"
 				continue
 			}
 
 		case '}':
-			isInBracket = false
-			variableName := strings.Trim(claimsInBracket, " ")
-			claims := strings.Split(variableName, " ")
-			claimsInBracketClone := strings.Clone(claimsInBracket)
+			var (
+				symbol  = strings.Trim(claimsInBracket, " ")
+				claims  = strings.Split(symbol, " ")
+				cibCopy = strings.Clone(claimsInBracket)
+			)
+
 			claimsInBracket = ""
+			isInBracket = false
 
 			if len(claims) == 1 {
-				if variableName == "/if" {
-					ifStatmentsOpened -= 1
-					if ifStatmentsOpened != 0 {
-						contentInStatment += "}"
-						continue
-					}
+				matched := statmentManager.ProcesEndingTag(symbol)
 
-					shouldRender := currentStatmentState.Info["shouldRender"]
-
-					if shouldRender == nil {
-						ifStatment := currentStatmentState.Info["statment"].(string)
-						result += "{" + ifStatment + "}" + contentInStatment + "}"
-						continue
-					}
-
-					if !shouldRender.(bool) {
-						continue
-					}
-
-					rep, ok := strings.CutSuffix(contentInStatment, "{/if")
-					if ok {
-						contentInStatment = rep
-					}
-					renderedContent := t.RenderTemplate(contentInStatment, variables)
-					result += renderedContent
-					contentInStatment = ""
-					currentStatmentState = GetNewEmptyStatment()
-
-				} else if variableName == "/foreach" {
-					forEachStatmentsOpened -= 1
-					if forEachStatmentsOpened != 0 {
-						contentInStatment += "}"
-						continue
-					}
-
-					variableName := currentStatmentState.Info["variableName"].(string)
-					iterationVariableName := currentStatmentState.Info["iterationVariableName"].(string)
-					array := variables[variableName]
-
-					if array == nil {
-						continue
-					}
-
-					slice, err := convertAnyToSlice(array)
-
-					if err != nil {
-						fmt.Println(err.Error())
-						continue
-					}
-
-					for _, v := range slice {
-						variables[iterationVariableName] = v
-						contentInStatment, _ := strings.CutSuffix(contentInStatment, "{/foreach")
-						result += t.RenderTemplate(contentInStatment, variables)
-					}
-
-					delete(variables, iterationVariableName)
-					contentInStatment = ""
-					currentStatmentState = GetNewEmptyStatment()
-
-				} else {
-					if ifStatmentsOpened > 0 || forEachStatmentsOpened > 0 {
-						contentInStatment += "}"
-					} else {
-						value := variables[variableName]
-						if value != nil {
-							strValue := Stringify(value)
-							result += strValue
-						} else {
-							result += "{" + claimsInBracketClone + "}"
-						}
-					}
-				}
-
-			} else {
-				statment := detectStatment(claims)
-				if statment == -1 || ifStatmentsOpened > 0 || forEachStatmentsOpened > 0 {
-					if statment == IfStatment {
-						ifStatmentsOpened += 1
-					} else if statment == ForeachStatment {
-						forEachStatmentsOpened += 1
-					}
+				if statmentManager.statmentsOpened != 0 {
 					contentInStatment += "}"
 					continue
 				}
 
-				if statment == IfStatment {
-					ifStatmentsOpened++
-					if ifStatmentsOpened != 1 {
+				if matched {
+					renderedStatment := statmentManager.RenderCurrentStatment(contentInStatment, t.RenderTemplate)
+					result += renderedStatment
+					statmentManager.ResetStatmentState()
+					contentInStatment = ""
+
+				} else {
+					if statmentManager.statmentsOpened > 0 {
+						contentInStatment += "}"
 						continue
 					}
 
-					value := variables[claims[1]]
-					valueType := reflect.TypeOf(value)
+					variableName := symbol
+					value := variables[variableName]
 
-					if value == nil || valueType.String() != "bool" {
-						currentStatmentState.Info["statment"] = claimsInBracketClone
-						continue
+					if value != nil {
+						result += Stringify(value)
+					} else {
+						result += "{" + cibCopy + "}"
 					}
-					currentStatmentState = GetNewIfStatment(value.(bool))
-
-				} else if statment == ForeachStatment {
-					forEachStatmentsOpened++
-					if forEachStatmentsOpened != 1 {
-						continue
-					}
-
-					value := variables[claims[1]]
-					valueType := reflect.TypeOf(value)
-
-					if value == nil || !strings.HasPrefix(valueType.String(), "[]") {
-						currentStatmentState.Info["statment"] = claimsInBracketClone
-						continue
-					}
-
-					currentStatmentState = GetNewForeachStatment(claims[1], claims[3])
 				}
 
+			} else {
+				matched := statmentManager.ProcesStartingTag(claims)
+				if statmentManager.statmentsOpened > 1 {
+					contentInStatment += "}"
+					continue
+				}
+
+				if !matched {
+					result += "}"
+					continue
+				}
+
+				statmentManager.SetNewStatmentState(claims, cibCopy)
 			}
 
 		default:
 			s := string(template[i])
 			addToResult := true
 
-			if ifStatmentsOpened > 0 || forEachStatmentsOpened > 0 {
+			if statmentManager.statmentsOpened > 0 {
 				contentInStatment += s
 				addToResult = false
 			}
@@ -198,19 +123,11 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 		}
 	}
 
-	if isInBracket {
+	if statmentManager.statmentsOpened > 0 {
+		result += contentInStatment
+	} else if isInBracket {
 		result += "{" + claimsInBracket
 	}
 
 	return result
 }
-
-func detectStatment(claims []string) int {
-	if IsIfStatmentPattern(claims) {
-		return IfStatment
-	} else if IsForeachStatmentPattern(claims) {
-		return ForeachStatment
-	}
-	return -1
-}
-
