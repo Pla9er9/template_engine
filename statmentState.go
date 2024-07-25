@@ -1,4 +1,4 @@
-package main
+package templateEngine
 
 const (
 	NoStatmentCode = iota
