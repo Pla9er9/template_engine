@@ -1,6 +1,6 @@
 package templateEngine
 
-type TestCase struct {
+type testCase struct {
 	Input       any
 	ExpectedOutput any
 }

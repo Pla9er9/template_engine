@@ -2,7 +2,7 @@ package templateEngine
 
 import "encoding/json"
 
-func Stringify(v any) string {
+func stringify(v any) string {
 	if v == nil {
 		return "nil"
 	}

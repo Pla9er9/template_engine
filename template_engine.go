@@ -26,7 +26,7 @@ func readFile(filename string) ([]byte, error) {
 
 func (t *TemplateEngine) RenderTemplate(template string, variables map[string]any) string {
 	var (
-		statmentManager   = GetMainStatmentManager(&variables)
+		statmentManager   = getMainStatmentManager(&variables)
 		isInBracket       = false
 		claimsInBracket   = ""
 		contentInStatment = ""
@@ -82,7 +82,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 					value := variables[variableName]
 
 					if value != nil {
-						result += Stringify(value)
+						result += stringify(value)
 					} else {
 						result += "{" + cibCopy + "}"
 					}

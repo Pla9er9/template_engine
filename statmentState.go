@@ -1,9 +1,9 @@
 package templateEngine
 
 const (
-	NoStatmentCode = iota
-	IfStatmentCode
-	ForeachStatmentCode
+	noStatmentCode = iota
+	ifStatmentCode
+	foreachStatmentCode
 )
 
 type StatmentState struct {
@@ -11,14 +11,14 @@ type StatmentState struct {
 	Info     map[string]any
 }
 
-func GetNewEmptyStatment() *StatmentState {
+func getNewEmptyStatment() *StatmentState {
 	return &StatmentState{
-		Statment: NoStatmentCode,
+		Statment: noStatmentCode,
 		Info:     make(map[string]any),
 	}
 }
 
-func GetNewStatment(statmentCode int, info map[string]any) StatmentState {
+func getNewStatment(statmentCode int, info map[string]any) StatmentState {
 	return StatmentState{
 		Statment: statmentCode,
 		Info: info,

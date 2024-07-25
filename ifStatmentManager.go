@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func GetIfStatmentManager() *IfStatmentManager {
+func getIfStatmentManager() *IfStatmentManager {
 	return &IfStatmentManager{}
 }
 
@@ -15,7 +15,7 @@ type IfStatmentManager struct {
 }
 
 func (s *IfStatmentManager) GetStatmentCode() int {
-	return IfStatmentCode
+	return ifStatmentCode
 }
 
 func (s *IfStatmentManager) GetStatmentEndingTag() string {
@@ -76,7 +76,7 @@ func (s *IfStatmentManager) SetNewStatmentState(claims []string, statmentState *
 		return
 	}
 	
-	*statmentState = GetNewStatment(
+	*statmentState = getNewStatment(
 		s.GetStatmentCode(),
 		map[string]any{
 			"shouldRender": value.(bool),

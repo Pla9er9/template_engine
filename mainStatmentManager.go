@@ -2,11 +2,11 @@ package templateEngine
 
 import "fmt"
 
-func GetMainStatmentManager(variables *map[string]any) *MainStatmentManager {
+func getMainStatmentManager(variables *map[string]any) *MainStatmentManager {
 	var (
-		emptyStatment          = GetNewEmptyStatment()
-		ifStatmentManager      = GetIfStatmentManager()
-		foreachStatmentManager = GetForeachStatmentManager()
+		emptyStatment          = getNewEmptyStatment()
+		ifStatmentManager      = getIfStatmentManager()
+		foreachStatmentManager = getForeachStatmentManager()
 		managers               = []StatmentManagerInterface{ifStatmentManager, foreachStatmentManager}
 	)
 
@@ -16,7 +16,7 @@ func GetMainStatmentManager(variables *map[string]any) *MainStatmentManager {
 
 	return &MainStatmentManager{
 		statmentsOpened:       0,
-		currentStatmentOpened: NoStatmentCode,
+		currentStatmentOpened: noStatmentCode,
 		statmentState:         emptyStatment,
 		managers:              managers,
 		variables:             variables,
@@ -37,7 +37,7 @@ func (m *MainStatmentManager) ProcesStartingTag(claims []string) (matched bool) 
 			continue
 		}
 
-		if m.currentStatmentOpened != NoStatmentCode && m.currentStatmentOpened != v.GetStatmentCode() {
+		if m.currentStatmentOpened != noStatmentCode && m.currentStatmentOpened != v.GetStatmentCode() {
 			continue
 		}
 
@@ -55,7 +55,7 @@ func (m *MainStatmentManager) ProcesEndingTag(endingTag string) (matched bool) {
 			continue
 		}
 
-		if v.GetStatmentCode() == m.currentStatmentOpened || m.currentStatmentOpened == NoStatmentCode {
+		if v.GetStatmentCode() == m.currentStatmentOpened || m.currentStatmentOpened == noStatmentCode {
 			m.statmentsOpened -= 1
 		}
 		return true
@@ -71,8 +71,8 @@ func (m *MainStatmentManager) SetNewStatmentState(claims []string, claimsInBrack
 }
 
 func (m *MainStatmentManager) ResetStatmentState() {
-	m.statmentState = GetNewEmptyStatment()
-	m.currentStatmentOpened = NoStatmentCode
+	m.statmentState = getNewEmptyStatment()
+	m.currentStatmentOpened = noStatmentCode
 }
 
 func (m *MainStatmentManager) RenderCurrentStatment(str string, renderTemplate RenderFunction) string {
@@ -81,7 +81,7 @@ func (m *MainStatmentManager) RenderCurrentStatment(str string, renderTemplate R
 }
 
 func (m *MainStatmentManager) getStatmentManagerByCode(statmentCode int) *StatmentManagerInterface {
-	if statmentCode > len(m.managers) || statmentCode == NoStatmentCode {
+	if statmentCode > len(m.managers) || statmentCode == noStatmentCode {
 		errMessage := fmt.Sprintf("Wrong statmentCode, statment code passed `%v`", statmentCode)
 		panic(errMessage)
 	}

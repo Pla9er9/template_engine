@@ -18,7 +18,7 @@ func TestRenderVariable(t *testing.T) {
 		}
 	)
 
-	testCases := []TestCase{
+	testCases := []testCase{
 		{
 			Input:          "<h1>{username}{ username }{    username   }</h1>",
 			ExpectedOutput: "<h1>AlexAlexAlex</h1>",
@@ -56,7 +56,7 @@ func TestRenderIfStatment(t *testing.T) {
 		"message":      "Hello abc",
 	}
 
-	testCases := []TestCase{
+	testCases := []testCase{
 		{
 			Input:          "{@if isAuthorized}<h1>You are authorized</h1>{/if}",
 			ExpectedOutput: "<h1>You are authorized</h1>",
@@ -91,7 +91,7 @@ func TestRenderForeachStatment(t *testing.T) {
 		"numbers": []int{1, 2, 3},
 	}
 
-	testCases := []TestCase{
+	testCases := []testCase{
 		{
 			Input:          "{@foreach numbers as num}{num}{/foreach}",
 			ExpectedOutput: "123",
@@ -113,7 +113,7 @@ func TestRenderForeachStatment(t *testing.T) {
 	testRenderTestCases(t, testCases, variables)
 }
 
-func testRenderTestCases(t *testing.T, testCases []TestCase, variables map[string]any) {
+func testRenderTestCases(t *testing.T, testCases []testCase, variables map[string]any) {
 	for _, test := range testCases {
 		input := test.Input.(string)
 		output := templateEngine.RenderTemplate(input, variables)

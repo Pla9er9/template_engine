@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func GetForeachStatmentManager() *ForeachStatmentManager {
+func getForeachStatmentManager() *ForeachStatmentManager {
 	return &ForeachStatmentManager{}
 }
 
@@ -16,7 +16,7 @@ type ForeachStatmentManager struct {
 }
 
 func (s *ForeachStatmentManager) GetStatmentCode() int {
-	return ForeachStatmentCode
+	return foreachStatmentCode
 }
 
 func (s *ForeachStatmentManager) GetStatmentEndingTag() string {
@@ -88,7 +88,7 @@ func (s *ForeachStatmentManager) SetNewStatmentState(claims []string, statmentSt
 		return
 	}
 
-	*statmentState = GetNewStatment(
+	*statmentState = getNewStatment(
 		s.GetStatmentCode(),
 		map[string]any{
 			"variableName":          claims[1],
