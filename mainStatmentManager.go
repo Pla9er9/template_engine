@@ -11,13 +11,13 @@ func getMainStatmentManager(variables *map[string]any) *MainStatmentManager {
 	)
 
 	for _, m := range managers {
-		m.SetDependencies(emptyStatment, variables)
+		m.SetDependencies(&emptyStatment, variables)
 	}
 
 	return &MainStatmentManager{
 		statmentsOpened:       0,
 		currentStatmentOpened: noStatmentCode,
-		statmentState:         emptyStatment,
+		statmentState:         &emptyStatment,
 		managers:              managers,
 		variables:             variables,
 	}
@@ -71,7 +71,7 @@ func (m *MainStatmentManager) SetNewStatmentState(claims []string, claimsInBrack
 }
 
 func (m *MainStatmentManager) ResetStatmentState() {
-	m.statmentState = getNewEmptyStatment()
+	*m.statmentState = getNewEmptyStatment()
 	m.currentStatmentOpened = noStatmentCode
 }
 

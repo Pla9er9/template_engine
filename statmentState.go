@@ -11,8 +11,8 @@ type StatmentState struct {
 	Info     map[string]any
 }
 
-func getNewEmptyStatment() *StatmentState {
-	return &StatmentState{
+func getNewEmptyStatment() StatmentState {
+	return StatmentState{
 		Statment: noStatmentCode,
 		Info:     make(map[string]any),
 	}
@@ -21,6 +21,6 @@ func getNewEmptyStatment() *StatmentState {
 func getNewStatment(statmentCode int, info map[string]any) StatmentState {
 	return StatmentState{
 		Statment: statmentCode,
-		Info: info,
+		Info:     info,
 	}
 }

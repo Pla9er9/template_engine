@@ -42,15 +42,22 @@ func (s *ForeachStatmentManager) IsStatmentPatternCorrect(claims []string) bool 
 
 func (s *ForeachStatmentManager) RenderStatment(str string, renderTemplate RenderFunction) string {
 	var (
-		result                = ""
-		variableName          = s.currentStatmentState.Info["variableName"].(string)
-		iterationVariableName = s.currentStatmentState.Info["iterationVariableName"].(string)
-		statmentStr           = fmt.Sprintf("{@foreach %v as %v}", variableName, iterationVariableName)
-		array                 = (*s.variables)[variableName]
+		result                 = ""
+		variableName_          = s.currentStatmentState.Info["variableName"]
+		iterationVariableName_ = s.currentStatmentState.Info["iterationVariableName"]
+		statmentStr            = s.currentStatmentState.Info["statment"]
 	)
 
+	if variableName_ == nil || iterationVariableName_ == nil {
+		return statmentStr.(string) + str + "}"
+	}
+
+	variableName := variableName_.(string)
+	iterationVariableName := iterationVariableName_.(string)
+
+	array := (*s.variables)[variableName]
 	if array == nil {
-		return statmentStr + str + "}"
+		return statmentStr.(string)
 	}
 
 	slice, err := convertAnyToSlice(array)
@@ -84,7 +91,7 @@ func (s *ForeachStatmentManager) SetNewStatmentState(claims []string, statmentSt
 	)
 
 	if value == nil || !strings.HasPrefix(valueType.String(), "[]") {
-		statmentState.Info["statment"] = claimsInBracketClone
+		statmentState.Info["statment"] = fmt.Sprintf("{@foreach %v as %v}", claims[1], claims[3])
 		return
 	}
 
