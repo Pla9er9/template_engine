@@ -113,6 +113,39 @@ func TestRenderForeachStatment(t *testing.T) {
 	testRenderTestCases(t, testCases, variables)
 }
 
+
+func TestRenderObjectVariables(t *testing.T) {
+	type user struct {
+		Name string
+		age int
+	}
+	
+	variables := map[string]any {
+		"user": user{
+			Name: "Alex",
+			age: 2,
+		},
+	}
+
+	testCases := []testCase{
+		{
+			Input: "{user.Name}",
+			ExpectedOutput: "Alex",
+		},
+		// unexported field wont be rendered
+		{
+			Input: "{user.age}",
+			ExpectedOutput: "{user.age}",
+		},
+		{
+			Input: "{user.noexist}",
+			ExpectedOutput: "{user.noexist}",
+		},
+	}
+	
+	testRenderTestCases(t, testCases, variables)
+}
+
 func testRenderTestCases(t *testing.T, testCases []testCase, variables map[string]any) {
 	for _, test := range testCases {
 		input := test.Input.(string)
