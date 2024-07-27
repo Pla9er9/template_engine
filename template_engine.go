@@ -2,6 +2,7 @@ package templateEngine
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"reflect"
 	"strings"
@@ -80,8 +81,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 						continue
 					}
 
-					variableName := symbol
-					result += t.renderVariable(variableName, &variables)
+					result += t.renderVariable(cibCopy, &variables)
 				}
 
 			} else {
@@ -128,16 +128,17 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 	return result
 }
 
-func (t *TemplateEngine) renderVariable(variableName string, variables *map[string]any) string {
+func (t *TemplateEngine) renderVariable(rawVariableName string, variables *map[string]any) string {
 	var (
 		value any
 		err   error
+		variableName     = strings.Trim(rawVariableName, " ")
 		// example: user.name -> [user, name]
 		properties       = strings.Split(variableName, ".")
-		variableStatment = "{" + variableName + "}"
+		variableStatment = fmt.Sprintf("{%v}", rawVariableName)
 	)
 
-	if len(properties) > 0 {
+	if len(properties) > 1 {
 		obj := (*variables)[properties[0]]
 		value, err = t.getPropertyFromObject(obj, properties[1:])
 	} else {
@@ -173,7 +174,7 @@ func (t *TemplateEngine) getField(v *any, field string) (any, error) {
 	r := reflect.ValueOf(*v)
 	f := reflect.Indirect(r).FieldByName(field)
 
-	if (f.Kind().String() == "invalid" || !f.CanInterface()) {
+	if f.Kind().String() == "invalid" || !f.CanInterface() {
 		return nil, errors.New("field doesnt exist")
 	}
 
