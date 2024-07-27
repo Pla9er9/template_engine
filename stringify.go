@@ -1,16 +1,20 @@
-package main
+package templateEngine
 
 import "encoding/json"
 
-func Stringify(v any) string {
+func stringify(v any) string {
 	if v == nil {
-		return "nil"
+		return "<nil>"
 	}
+
 	switch v.(type) {
 	case string:
 		return v.(string)
 	default:
-		b, _ := json.Marshal(v)
+		b, err := json.Marshal(v)
+		if err != nil {
+			panic(err)
+		}
 		return string(b)
 	}
 }

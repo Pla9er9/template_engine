@@ -1,4 +1,4 @@
-package main
+package templateEngine
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 )
 
 func TestStringify(t *testing.T) {
-	testCases := []TestCase{
+	testCases := []testCase{
 		{
 			Input:          "aba",
 			ExpectedOutput: "aba",
@@ -34,7 +34,7 @@ func TestStringify(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		str := Stringify(test.Input)
+		str := stringify(test.Input)
 
 		if str != test.ExpectedOutput {
 			errorMsg := fmt.Sprintf(

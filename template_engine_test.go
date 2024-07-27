@@ -1,35 +1,35 @@
-package main
+package templateEngine
 
 import (
 	"fmt"
 	"testing"
 )
 
-var templateEngine = getTemplateEngine()
+var templateEngine = GetTemplateEngine()
 
 func TestRenderVariable(t *testing.T) {
-	username := "Alex"
-	color := "blue"
-	variables := map[string]any{
-		"username": username,
-		"color":    color,
-		"number":   2,
-		"array":    []string{"item1", "item2"},
-		"boolean":  true,
-	}
+	var (
+		variables = map[string]any{
+			"username": "Alex",
+			"color":    "blue",
+			"number":   2,
+			"array":    []string{"item1", "item2"},
+			"boolean":  true,
+		}
+	)
 
-	testCases := []TestCase{
+	testCases := []testCase{
 		{
 			Input:          "<h1>{username}{ username }{    username   }</h1>",
-			ExpectedOutput: "<h1>" + username + username + username + "</h1>",
+			ExpectedOutput: "<h1>AlexAlexAlex</h1>",
 		},
 		{
 			Input:          "<h1 style='color: { color };'>{  username }</h1>",
-			ExpectedOutput: "<h1 style='color: " + color + ";'>" + username + "</h1>",
+			ExpectedOutput: "<h1 style='color: blue;'>Alex</h1>",
 		},
 		{
 			Input:          "{ color }{  username }",
-			ExpectedOutput: color + username,
+			ExpectedOutput: "blueAlex",
 		},
 		{
 			Input:          "{ number } {  array } { boolean }",
@@ -53,10 +53,10 @@ func TestRenderIfStatment(t *testing.T) {
 		"isAuthorized": true,
 		"isAdmin":      false,
 		"moreInfo":     true,
-		"message": "Hello abc",
+		"message":      "Hello abc",
 	}
 
-	testCases := []TestCase{
+	testCases := []testCase{
 		{
 			Input:          "{@if isAuthorized}<h1>You are authorized</h1>{/if}",
 			ExpectedOutput: "<h1>You are authorized</h1>",
@@ -91,7 +91,7 @@ func TestRenderForeachStatment(t *testing.T) {
 		"numbers": []int{1, 2, 3},
 	}
 
-	testCases := []TestCase{
+	testCases := []testCase{
 		{
 			Input:          "{@foreach numbers as num}{num}{/foreach}",
 			ExpectedOutput: "123",
@@ -114,14 +114,46 @@ func TestRenderForeachStatment(t *testing.T) {
 }
 
 
-func testRenderTestCases(t *testing.T, testCases []TestCase, variables map[string]any) {
+func TestRenderObjectVariables(t *testing.T) {
+	type user struct {
+		Name string
+		age int
+	}
+	
+	variables := map[string]any {
+		"user": user{
+			Name: "Alex",
+			age: 2,
+		},
+	}
+
+	testCases := []testCase{
+		{
+			Input: "{user.Name}",
+			ExpectedOutput: "Alex",
+		},
+		// unexported field wont be rendered
+		{
+			Input: "{user.age}",
+			ExpectedOutput: "{user.age}",
+		},
+		{
+			Input: "{user.noexist}",
+			ExpectedOutput: "{user.noexist}",
+		},
+	}
+	
+	testRenderTestCases(t, testCases, variables)
+}
+
+func testRenderTestCases(t *testing.T, testCases []testCase, variables map[string]any) {
 	for _, test := range testCases {
 		input := test.Input.(string)
 		output := templateEngine.RenderTemplate(input, variables)
 
 		if output != test.ExpectedOutput {
 			errorMsg := getRenderErrorMsg(test.ExpectedOutput.(string), output)
- 			t.Error(errorMsg)
+			t.Error(errorMsg)
 		}
 	}
 }
