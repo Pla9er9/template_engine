@@ -2,19 +2,19 @@ package templateEngine
 
 import "fmt"
 
-func getMainStatmentManager(variables *map[string]any) *MainStatmentManager {
+func getMainStatmentManager(variables *map[string]any) *mainStatmentManager {
 	var (
 		emptyStatment          = getNewEmptyStatment()
 		ifStatmentManager      = getIfStatmentManager()
 		foreachStatmentManager = getForeachStatmentManager()
-		managers               = []StatmentManagerInterface{ifStatmentManager, foreachStatmentManager}
+		managers               = []statmentManagerInterface{ifStatmentManager, foreachStatmentManager}
 	)
 
 	for _, m := range managers {
 		m.SetDependencies(&emptyStatment, variables)
 	}
 
-	return &MainStatmentManager{
+	return &mainStatmentManager{
 		statmentsOpened:       0,
 		currentStatmentOpened: noStatmentCode,
 		statmentState:         &emptyStatment,
@@ -23,15 +23,15 @@ func getMainStatmentManager(variables *map[string]any) *MainStatmentManager {
 	}
 }
 
-type MainStatmentManager struct {
-	managers              []StatmentManagerInterface
-	statmentState         *StatmentState
+type mainStatmentManager struct {
+	managers              []statmentManagerInterface
+	statmentState         *statmentState
 	statmentsOpened       int
 	currentStatmentOpened int
 	variables             *map[string]any
 }
 
-func (m *MainStatmentManager) ProcesStartingTag(claims []string) (matched bool) {
+func (m *mainStatmentManager) ProcesStartingTag(claims []string) (matched bool) {
 	for _, v := range m.managers {
 		if !v.IsStatmentPatternCorrect(claims) {
 			continue
@@ -49,7 +49,7 @@ func (m *MainStatmentManager) ProcesStartingTag(claims []string) (matched bool) 
 	return false
 }
 
-func (m *MainStatmentManager) ProcesEndingTag(endingTag string) (matched bool) {
+func (m *mainStatmentManager) ProcesEndingTag(endingTag string) (matched bool) {
 	for _, v := range m.managers {
 		if v.GetStatmentEndingTag() != endingTag {
 			continue
@@ -65,22 +65,22 @@ func (m *MainStatmentManager) ProcesEndingTag(endingTag string) (matched bool) {
 	return false
 }
 
-func (m *MainStatmentManager) SetNewStatmentState(claims []string, claimsInBracket string) {
-	var currentManager StatmentManagerInterface = *m.getStatmentManagerByCode(m.currentStatmentOpened)
+func (m *mainStatmentManager) SetNewStatmentState(claims []string, claimsInBracket string) {
+	var currentManager statmentManagerInterface = *m.getStatmentManagerByCode(m.currentStatmentOpened)
 	currentManager.SetNewStatmentState(claims, m.statmentState, claimsInBracket)
 }
 
-func (m *MainStatmentManager) ResetStatmentState() {
+func (m *mainStatmentManager) ResetStatmentState() {
 	*m.statmentState = getNewEmptyStatment()
 	m.currentStatmentOpened = noStatmentCode
 }
 
-func (m *MainStatmentManager) RenderCurrentStatment(str string, renderTemplate RenderFunction) string {
-	var currentManager StatmentManagerInterface = *m.getStatmentManagerByCode(m.currentStatmentOpened)
+func (m *mainStatmentManager) RenderCurrentStatment(str string, renderTemplate renderFunction) string {
+	var currentManager statmentManagerInterface = *m.getStatmentManagerByCode(m.currentStatmentOpened)
 	return currentManager.RenderStatment(str, renderTemplate)
 }
 
-func (m *MainStatmentManager) getStatmentManagerByCode(statmentCode int) *StatmentManagerInterface {
+func (m *mainStatmentManager) getStatmentManagerByCode(statmentCode int) *statmentManagerInterface {
 	if statmentCode > len(m.managers) || statmentCode == noStatmentCode {
 		errMessage := fmt.Sprintf("Wrong statmentCode, statment code passed `%v`", statmentCode)
 		panic(errMessage)
