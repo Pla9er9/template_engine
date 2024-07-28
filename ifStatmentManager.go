@@ -66,16 +66,14 @@ func (s *IfStatmentManager) RenderStatment(str string, renderTemplate RenderFunc
 }
 
 func (s *IfStatmentManager) SetNewStatmentState(claims []string, statmentState *StatmentState, claimsInBracketClone string) {
-	var (
-		value     = (*s.variables)[claims[1]]
-		valueType = reflect.TypeOf(value)
-	)
+	value, err := getVariable(claims[1], s.variables)
+	valueType := reflect.TypeOf(value)
 
-	if value == nil || valueType.String() != "bool" {
+	if value == nil || valueType.String() != "bool" || err != nil {
 		statmentState.Info["statment"] = claimsInBracketClone
 		return
 	}
-	
+
 	*statmentState = getNewStatment(
 		s.GetStatmentCode(),
 		map[string]any{
