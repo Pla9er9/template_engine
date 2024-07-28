@@ -1,10 +1,8 @@
 package templateEngine
 
 import (
-	"errors"
 	"fmt"
 	"os"
-	"reflect"
 	"strings"
 )
 
@@ -129,21 +127,9 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 }
 
 func (t *TemplateEngine) renderVariable(rawVariableName string, variables *map[string]any) string {
-	var (
-		value any
-		err   error
-		variableName     = strings.Trim(rawVariableName, " ")
-		// example: user.name -> [user, name]
-		properties       = strings.Split(variableName, ".")
-		variableStatment = fmt.Sprintf("{%v}", rawVariableName)
-	)
-
-	if len(properties) > 1 {
-		obj := (*variables)[properties[0]]
-		value, err = t.getPropertyFromObject(obj, properties[1:])
-	} else {
-		value = (*variables)[variableName]
-	}
+	variableName := strings.Trim(rawVariableName, " ")
+	variableStatment := fmt.Sprintf("{%v}", rawVariableName)
+	value, err := getVariable(variableName, variables)
 
 	if value != nil && err == nil {
 		return stringify(value)
@@ -151,32 +137,4 @@ func (t *TemplateEngine) renderVariable(rawVariableName string, variables *map[s
 		return variableStatment
 	}
 
-}
-
-func (t *TemplateEngine) getPropertyFromObject(struct_ any, fields []string) (any, error) {
-	if struct_ == nil {
-		return nil, errors.New("nil passed")
-	}
-
-	v, err := t.getField(&struct_, fields[0])
-	if err != nil {
-		return nil, err
-	}
-
-	if len(fields) == 1 {
-		return v, nil
-	}
-
-	return t.getPropertyFromObject(v, fields[1:])
-}
-
-func (t *TemplateEngine) getField(v *any, field string) (any, error) {
-	r := reflect.ValueOf(*v)
-	f := reflect.Indirect(r).FieldByName(field)
-
-	if f.Kind().String() == "invalid" || !f.CanInterface() {
-		return nil, errors.New("field doesnt exist")
-	}
-
-	return f.Interface(), nil
 }

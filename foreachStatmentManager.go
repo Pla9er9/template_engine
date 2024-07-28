@@ -55,12 +55,12 @@ func (s *ForeachStatmentManager) RenderStatment(str string, renderTemplate Rende
 	variableName := variableName_.(string)
 	iterationVariableName := iterationVariableName_.(string)
 
-	array := (*s.variables)[variableName]
-	if array == nil {
+	value, err := getVariable(variableName, s.variables)
+	if value == nil || err != nil {
 		return statmentStr.(string)
 	}
 
-	slice, err := convertAnyToSlice(array)
+	slice, err := convertAnyToSlice(value)
 
 	if err != nil {
 		fmt.Printf("%v - %v\n", statmentStr, err.Error())
@@ -85,12 +85,10 @@ func (s *ForeachStatmentManager) RenderStatment(str string, renderTemplate Rende
 }
 
 func (s *ForeachStatmentManager) SetNewStatmentState(claims []string, statmentState *StatmentState, claimsInBracketClone string) {
-	var (
-		value     = (*s.variables)[claims[1]]
-		valueType = reflect.TypeOf(value)
-	)
+	value, err := getVariable(claims[1], s.variables)
+	valueType := reflect.TypeOf(value)
 
-	if value == nil || !strings.HasPrefix(valueType.String(), "[]") {
+	if value == nil || !strings.HasPrefix(valueType.String(), "[]") || err != nil {
 		statmentState.Info["statment"] = fmt.Sprintf("{@foreach %v as %v}", claims[1], claims[3])
 		return
 	}

@@ -117,13 +117,22 @@ func TestRenderForeachStatment(t *testing.T) {
 func TestRenderObjectVariables(t *testing.T) {
 	type user struct {
 		Name string
+		IsAdult bool
+		Hobbies []string
 		age int
 	}
 	
 	variables := map[string]any {
 		"user": user{
 			Name: "Alex",
-			age: 2,
+			age: 20,
+			IsAdult: true,
+			Hobbies: []string{
+				"a", "b", "c",
+			},
+		},
+		"lol": []string{
+			"a", "b", "c",
 		},
 	}
 
@@ -140,6 +149,14 @@ func TestRenderObjectVariables(t *testing.T) {
 		{
 			Input: "{user.noexist}",
 			ExpectedOutput: "{user.noexist}",
+		},
+		{
+			Input: "{@if user.IsAdult}Adult{/if}",
+			ExpectedOutput: "Adult",
+		},
+		{
+			Input: "{@foreach user.Hobbies as h}{h}{/foreach}",
+			ExpectedOutput: "abc",
 		},
 	}
 	
