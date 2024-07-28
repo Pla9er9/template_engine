@@ -1,18 +1,18 @@
 package templateEngine
 
-type StatmentManagerInterface interface {
+type statmentManagerInterface interface {
 
 	GetStatmentCode() int
 
 	GetStatmentEndingTag() string
 
-	SetDependencies(statmentState *StatmentState, variables *map[string]any)
+	SetDependencies(statmentState *statmentState, variables *map[string]any)
 
 	IsStatmentPatternCorrect(claims []string) bool
 
-	RenderStatment(str string, renderTemplate RenderFunction) string
+	RenderStatment(str string, renderTemplate renderFunction) string
 
-	SetNewStatmentState(claims []string, statmentState *StatmentState, claimsInBracket string)
+	SetNewStatmentState(claims []string, statmentState *statmentState, claimsInBracket string)
 }
 
-type RenderFunction func(template string, variables map[string]any) string
+type renderFunction func(template string, variables map[string]any) string

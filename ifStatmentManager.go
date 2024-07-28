@@ -5,29 +5,29 @@ import (
 	"strings"
 )
 
-func getIfStatmentManager() *IfStatmentManager {
-	return &IfStatmentManager{}
+func getIfStatmentManager() *ifStatmentManager {
+	return &ifStatmentManager{}
 }
 
-type IfStatmentManager struct {
-	currentStatmentState *StatmentState
+type ifStatmentManager struct {
+	currentStatmentState *statmentState
 	variables            *map[string]any
 }
 
-func (s *IfStatmentManager) GetStatmentCode() int {
+func (s *ifStatmentManager) GetStatmentCode() int {
 	return ifStatmentCode
 }
 
-func (s *IfStatmentManager) GetStatmentEndingTag() string {
+func (s *ifStatmentManager) GetStatmentEndingTag() string {
 	return "/if"
 }
 
-func (s *IfStatmentManager) SetDependencies(statmentState *StatmentState, variables *map[string]any) {
+func (s *ifStatmentManager) SetDependencies(statmentState *statmentState, variables *map[string]any) {
 	s.currentStatmentState = statmentState
 	s.variables = variables
 }
 
-func (s *IfStatmentManager) IsStatmentPatternCorrect(claims []string) bool {
+func (s *ifStatmentManager) IsStatmentPatternCorrect(claims []string) bool {
 	if len(claims) != 2 {
 		return false
 	}
@@ -39,7 +39,7 @@ func (s *IfStatmentManager) IsStatmentPatternCorrect(claims []string) bool {
 	return true
 }
 
-func (s *IfStatmentManager) RenderStatment(str string, renderTemplate RenderFunction) string {
+func (s *ifStatmentManager) RenderStatment(str string, renderTemplate renderFunction) string {
 	var (
 		result       = ""
 		shouldRender = s.currentStatmentState.Info["shouldRender"]
@@ -65,7 +65,7 @@ func (s *IfStatmentManager) RenderStatment(str string, renderTemplate RenderFunc
 	return result
 }
 
-func (s *IfStatmentManager) SetNewStatmentState(claims []string, statmentState *StatmentState, claimsInBracketClone string) {
+func (s *ifStatmentManager) SetNewStatmentState(claims []string, statmentState *statmentState, claimsInBracketClone string) {
 	value, err := getVariable(claims[1], s.variables)
 	valueType := reflect.TypeOf(value)
 

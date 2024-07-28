@@ -6,29 +6,29 @@ import (
 	"strings"
 )
 
-func getForeachStatmentManager() *ForeachStatmentManager {
-	return &ForeachStatmentManager{}
+func getForeachStatmentManager() *foreachStatmentManager {
+	return &foreachStatmentManager{}
 }
 
-type ForeachStatmentManager struct {
-	currentStatmentState *StatmentState
+type foreachStatmentManager struct {
+	currentStatmentState *statmentState
 	variables            *map[string]any
 }
 
-func (s *ForeachStatmentManager) GetStatmentCode() int {
+func (s *foreachStatmentManager) GetStatmentCode() int {
 	return foreachStatmentCode
 }
 
-func (s *ForeachStatmentManager) GetStatmentEndingTag() string {
+func (s *foreachStatmentManager) GetStatmentEndingTag() string {
 	return "/foreach"
 }
 
-func (s *ForeachStatmentManager) SetDependencies(statmentState *StatmentState, variables *map[string]any) {
+func (s *foreachStatmentManager) SetDependencies(statmentState *statmentState, variables *map[string]any) {
 	s.currentStatmentState = statmentState
 	s.variables = variables
 }
 
-func (s *ForeachStatmentManager) IsStatmentPatternCorrect(claims []string) bool {
+func (s *foreachStatmentManager) IsStatmentPatternCorrect(claims []string) bool {
 	if len(claims) != 4 {
 		return false
 	}
@@ -40,7 +40,7 @@ func (s *ForeachStatmentManager) IsStatmentPatternCorrect(claims []string) bool 
 	return true
 }
 
-func (s *ForeachStatmentManager) RenderStatment(str string, renderTemplate RenderFunction) string {
+func (s *foreachStatmentManager) RenderStatment(str string, renderTemplate renderFunction) string {
 	var (
 		result                 = ""
 		variableName_          = s.currentStatmentState.Info["variableName"]
@@ -84,7 +84,7 @@ func (s *ForeachStatmentManager) RenderStatment(str string, renderTemplate Rende
 	return result
 }
 
-func (s *ForeachStatmentManager) SetNewStatmentState(claims []string, statmentState *StatmentState, claimsInBracketClone string) {
+func (s *foreachStatmentManager) SetNewStatmentState(claims []string, statmentState *statmentState, claimsInBracketClone string) {
 	value, err := getVariable(claims[1], s.variables)
 	valueType := reflect.TypeOf(value)
 
