@@ -90,7 +90,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 				}
 
 				if !matched {
-					result += "}"
+					result += "{" + cibCopy + "}"
 					continue
 				}
 
