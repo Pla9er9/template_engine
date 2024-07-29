@@ -43,6 +43,20 @@ func TestRenderVariable(t *testing.T) {
 			Input:          "{ ello",
 			ExpectedOutput: "{ ello",
 		},
+		{
+			Input: `
+			<style>
+				button {
+					min-width: 120px;
+				}
+			</style>`,
+		ExpectedOutput: `
+			<style>
+				button {
+					min-width: 120px;
+				}
+			</style>`,
+		},
 	}
 
 	testRenderTestCases(t, testCases, variables)
