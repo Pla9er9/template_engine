@@ -127,6 +127,10 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 }
 
 func (t *TemplateEngine) renderVariable(rawVariableName string, variables *map[string]any) string {
+	if rawVariableName == "" {
+		return "}"
+	}
+
 	variableName := strings.Trim(rawVariableName, " ")
 	variableStatment := fmt.Sprintf("{%v}", rawVariableName)
 	value, err := getVariable(variableName, variables)
