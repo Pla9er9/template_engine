@@ -57,6 +57,22 @@ func TestRenderVariable(t *testing.T) {
 				}
 			</style>`,
 		},
+		{
+			Input: `function deleteRow(id) {
+            document.getElementById('id-${id}').remove()
+        }`,
+			ExpectedOutput: `function deleteRow(id) {
+            document.getElementById('id-${id}').remove()
+        }`,
+		},
+		{
+			Input: `function deleteRow(id) {
+            () => {document.getElementById('id-${id}').remove()}
+        }`,
+			ExpectedOutput: `function deleteRow(id) {
+            () => {document.getElementById('id-${id}').remove()}
+        }`,
+		},
 	}
 
 	testRenderTestCases(t, testCases, variables)
