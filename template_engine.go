@@ -33,7 +33,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 		contentInStatment = ""
 		result            = ""
 	)
-	// fmt.Println(template)
+
 	for i := 0; i < len(template); i++ {
 		switch template[i] {
 		case '{':
