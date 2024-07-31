@@ -50,7 +50,7 @@ func TestRenderVariable(t *testing.T) {
 					min-width: 120px;
 				}
 			</style>`,
-		ExpectedOutput: `
+			ExpectedOutput: `
 			<style>
 				button {
 					min-width: 120px;
@@ -84,6 +84,7 @@ func TestRenderIfStatment(t *testing.T) {
 		"isAdmin":      false,
 		"moreInfo":     true,
 		"message":      "Hello abc",
+		"array":        []string{"item1", "item2"},
 	}
 
 	testCases := []testCase{
@@ -108,6 +109,10 @@ func TestRenderIfStatment(t *testing.T) {
 			ExpectedOutput: "Hello abc",
 		},
 		{
+			Input:          "{@if isAuthorized}{@foreach array as arr}{arr}{/foreach}{/if}",
+			ExpectedOutput: "item1item2",
+		},
+		{
 			Input:          "{@if none}{message}{/if}",
 			ExpectedOutput: "{@if none}{message}{/if}",
 		},
@@ -119,6 +124,7 @@ func TestRenderIfStatment(t *testing.T) {
 func TestRenderForeachStatment(t *testing.T) {
 	variables := map[string]any{
 		"numbers": []int{1, 2, 3},
+		"var":     true,
 	}
 
 	testCases := []testCase{
@@ -135,6 +141,10 @@ func TestRenderForeachStatment(t *testing.T) {
 			ExpectedOutput: "123123123",
 		},
 		{
+			Input:          "{@foreach numbers as num}{@if var}var{/if}{/foreach}",
+			ExpectedOutput: "varvarvar",
+		},
+		{
 			Input:          "{num{num}{/foreach",
 			ExpectedOutput: "{num{num}{/foreach",
 		},
@@ -143,19 +153,18 @@ func TestRenderForeachStatment(t *testing.T) {
 	testRenderTestCases(t, testCases, variables)
 }
 
-
 func TestRenderObjectVariables(t *testing.T) {
 	type user struct {
-		Name string
+		Name    string
 		IsAdult bool
 		Hobbies []string
-		age int
+		age     int
 	}
-	
-	variables := map[string]any {
+
+	variables := map[string]any{
 		"user": user{
-			Name: "Alex",
-			age: 20,
+			Name:    "Alex",
+			age:     20,
 			IsAdult: true,
 			Hobbies: []string{
 				"a", "b", "c",
@@ -168,28 +177,32 @@ func TestRenderObjectVariables(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			Input: "{user.Name}",
+			Input:          "{user.Name}",
 			ExpectedOutput: "Alex",
 		},
 		// unexported field wont be rendered
 		{
-			Input: "{user.age}",
+			Input:          "{user.age}",
 			ExpectedOutput: "{user.age}",
 		},
 		{
-			Input: "{user.noexist}",
+			Input:          "{user.noexist}",
 			ExpectedOutput: "{user.noexist}",
 		},
 		{
-			Input: "{@if user.IsAdult}Adult{/if}",
+			Input:          "{@if user.IsAdult}Adult{/if}",
 			ExpectedOutput: "Adult",
 		},
 		{
-			Input: "{@foreach user.Hobbies as h}{h}{/foreach}",
+			Input:          "{@foreach user.Hobbies as h}{h}{/foreach}",
+			ExpectedOutput: "abc",
+		},
+		{
+			Input:          "{@foreach user.Hobbies as h}{h}{/foreach}",
 			ExpectedOutput: "abc",
 		},
 	}
-	
+
 	testRenderTestCases(t, testCases, variables)
 }
 
