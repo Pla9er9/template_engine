@@ -33,7 +33,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 		contentInStatment = ""
 		result            = ""
 	)
-
+	// fmt.Println(template)
 	for i := 0; i < len(template); i++ {
 		switch template[i] {
 		case '{':
@@ -84,7 +84,7 @@ func (t *TemplateEngine) RenderTemplate(template string, variables map[string]an
 
 			} else {
 				matched := statmentManager.ProcesStartingTag(claims)
-				if statmentManager.statmentsOpened > 1 {
+				if statmentManager.statmentsOpened > 1 || (statmentManager.statmentsOpened == 1 && !matched) {
 					contentInStatment += "}"
 					continue
 				}
