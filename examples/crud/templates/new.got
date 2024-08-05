@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" id="i-name" placeholder="Name"> <br>
+    <input type="email" id="i-email" placeholder="Email"> <br>
+    <input type="checkbox" name="i-adult" id="i-adult" placeholder="Is adult">
+    <label for="i-adult">Is adult</label> <br>
+    <input type="button" onclick="submit()" value="Create">
+
+    <script>
+        async function submit() {
+            const name = document.getElementById("i-name").value
+            const email = document.getElementById("i-email").value
+            const adult = document.getElementById("i-adult").checked
+
+            const res = await fetch("/users", {
+                method: "post",
+                body: JSON.stringify({
+                    "Name": name,
+                    "Email": email,
+                    "IsAdult": adult,
+                }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            
+            if (!res.ok) {
+                alert("Error while adding user")
+                console.error(res.status)
+                console.error(await res.json())
+                return
+            }
+
+            const j = res.json()
+            .catch((a) => { 
+                console.error(a) }
+            )
+            .then(j => {
+                window.location.replace(`/users/${j.user.ID}`)
+            })
+            
+        }
+    </script>
+</body>
+</html>

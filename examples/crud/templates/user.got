@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            body {
+                margin: 0;
+            }
+
+            h1 {
+                padding: 20px 0 ;
+                text-align: center;
+                margin: 0 auto;
+            }
+
+            button {
+                min-width: 120px;
+                height: 30px;
+            }
+
+            h2 {
+                margin-left: 20px;
+            }
+
+            p {
+                margin: 0 10px;
+            }
+
+            .row {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        </style>
+    </head>
+    <body>
+        <a href="/">Back</a>
+        <div class="row">
+            <h2 id="id">ID - {user.ID}</h2>
+            <h1>{user.Name}</h1>
+            <p>{user.Email}</p>
+        </div>
+        <a href="{user.ID}/edit" style="margin-left: auto;" onclick="">Edit</button>
+        <button onclick="deleteRow('{user.ID}')" >Delete</button>
+    </body>
+    <script>
+        function deleteRow(id) {
+            const res = fetch(`/users/${id}`, {
+                method: "DELETE"
+            }).catch((a) => console.error(a))
+            window.location.replace("/")
+        }
+    </script>
+</html>
