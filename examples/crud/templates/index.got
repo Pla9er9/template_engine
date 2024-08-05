@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            body {
+                margin: 0;
+            }
+
+            nav {
+                outline: solid 1px #000;
+                display: flex;
+                align-items: center;
+                padding: 0 20px;
+                box-sizing: border-box;
+            }
+
+            nav h1 {
+                padding: 20px 0 ;
+                text-align: center;
+                margin: 0 auto 0 0;
+            }
+
+            nav a {
+                margin: 0 25px;
+            }
+
+            button {
+                min-width: 120px;
+                height: 30px;
+            }
+
+            h2 {
+                margin-left: 20px;
+            }
+
+            p {
+                margin: 0 10px;
+            }
+
+            .dark {
+                background-color: rgb(196, 197, 240);
+            }
+
+            div {
+                outline: solid 1px black;
+            }
+
+        </style>
+    </head>
+    <body>
+        <nav>
+            <h1>User list</h1>
+            <a href="/new">new user</a>
+        </nav>
+        {@foreach users as user}
+            <div id="id-{user.ID}" class="{@if user.IsAdult}dark{/if}" style="display: flex; align-items: center;">
+                <a href="/users/{user.ID}">
+                    <h2 id="id">ID - {user.ID}</h2>
+                </a>
+                <h2>{user.Name}</h2>
+                <p>{user.Email}</p>
+                <a href="edit" style="margin-left: auto;" onclick="">Edit</button>
+                <button onclick="deleteRow('{user.ID}')" >Delete</button>
+            </div>
+        {/foreach}
+    </body>
+    <script>
+        function deleteRow(id) {
+            document.getElementById(`id-${id}`).remove()
+            const res = fetch(`/users/${id}`, {
+                method: "DELETE"
+            }).catch((a) => console.error(a))
+        }
+    </script>
+</html>
